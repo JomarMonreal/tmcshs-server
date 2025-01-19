@@ -1,0 +1,16 @@
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore environment variables file
+.env
+
+# Ignore Django migrations
+*/migrations/*
+
+# Ignore compiled static files
+staticfiles_build/
+
+# Ignore virtual environment directory
+venv/
+.vercel
