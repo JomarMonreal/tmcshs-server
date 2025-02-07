@@ -122,7 +122,7 @@ DATABASES = {
         'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
         'NAME': 'postgres',
         'USER': 'postgres.ikanvbyxxptjcfslnpoq',
-        'PORT': '6543',
+        'PORT': '5432',
         'PASSWORD': 'Z6SbLTEmIt6C6KYA',
     }
 }
