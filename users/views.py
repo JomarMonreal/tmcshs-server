@@ -5,6 +5,34 @@ from rest_framework.permissions import AllowAny
 from .serializers import UserRegistrationSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import AccessToken
+from django.contrib.auth.models import User
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def verify_token(request):
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return JsonResponse({"error": "Token is missing or invalid"},
+                            status=401)
+
+    token = auth_header.split(' ')[1]  # Extract token after 'Bearer '
+
+    try:
+        # Verify and decode token
+        decoded_token = AccessToken(token)
+        user_id = decoded_token['user_id']  # Extract user ID if needed
+        user = User.objects.get(id=user_id)
+        return JsonResponse({"message": "Token is valid", "user_id": user_id,
+                             "is_staff": user.is_staff}, status=200)
+
+    except Exception:
+        return JsonResponse({"error": "Invalid or expired token"}, status=401)
 
 
 class UserRegistrationView(APIView):
@@ -13,7 +41,6 @@ class UserRegistrationView(APIView):
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
-            # Save the new user
             user = serializer.save()
 
             # Authenticate and log in the user
@@ -23,7 +50,7 @@ class UserRegistrationView(APIView):
             if user is not None:
                 login(request, user)
 
-                # Generate the JWT token
+                # Generate JWT token
                 refresh = RefreshToken.for_user(user)
                 access_token = str(refresh.access_token)
 
